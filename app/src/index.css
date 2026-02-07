@@ -70,8 +70,10 @@
     box-shadow: 0 0 30px rgba(200, 164, 92, 0.3), 0 0 60px rgba(200, 164, 92, 0.1);
   }
 
+  /* FIX: Don't use bg-[rgba(...)] or border-[rgba(...)] inside @apply */
   .card-glass {
-    @apply bg-[rgba(20, 23, 28, 0.72)] border border-[rgba(242, 244, 248, 0.14)];
+    border: 1px solid rgba(242, 244, 248, 0.14);
+    background: rgba(20, 23, 28, 0.72);
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
   }
 
@@ -108,8 +110,10 @@
     transform: translateY(-2px);
   }
 
+  /* FIX: border-[rgba(...)] inside @apply isn't allowed */
   .btn-secondary {
-    @apply text-[#F2F4F8] px-6 py-3 rounded-lg font-medium text-sm tracking-wide border border-[rgba(242, 244, 248, 0.2)] transition-all duration-300;
+    @apply text-[#F2F4F8] px-6 py-3 rounded-lg font-medium text-sm tracking-wide transition-all duration-300;
+    border: 1px solid rgba(242, 244, 248, 0.2);
   }
 
   .btn-secondary:hover {
@@ -160,12 +164,18 @@
     }
   }
 
+  /* FIX: bg-[rgba(...)] and border-[rgba(...)] in @apply aren't allowed */
   .tag {
-    @apply px-3 py-1 text-xs font-mono uppercase tracking-wider bg-[rgba(200, 164, 92, 0.1)] text-[#C8A45C] rounded border border-[rgba(200, 164, 92, 0.2)];
+    @apply px-3 py-1 text-xs font-mono uppercase tracking-wider text-[#C8A45C] rounded;
+    background: rgba(200, 164, 92, 0.1);
+    border: 1px solid rgba(200, 164, 92, 0.2);
   }
 
+  /* FIX: bg-[rgba(...)] and border-[rgba(...)] in @apply aren't allowed */
   .process-card {
-    @apply relative bg-[rgba(20, 23, 28, 0.6)] border border-[rgba(242, 244, 248, 0.1)] rounded-xl p-6;
+    @apply relative rounded-xl p-6;
+    background: rgba(20, 23, 28, 0.6);
+    border: 1px solid rgba(242, 244, 248, 0.1);
   }
 
   .process-card::before {
@@ -183,8 +193,10 @@
     @apply text-5xl md:text-6xl font-bold text-[#C8A45C] font-mono;
   }
 
+  /* FIX: bg-[rgba(...)] in @apply isn't allowed */
   .divider-line {
-    @apply w-px bg-[rgba(242, 244, 248, 0.14)];
+    @apply w-px;
+    background: rgba(242, 244, 248, 0.14);
   }
 
   .quote-mark {

@@ -415,6 +415,22 @@ function App() {
 
   const projects = [
     {
+      title: 'Safe Walk',
+      description: 'Women Safe Live Tracker. Real-time location tracking and emergency alerts for personal safety.',
+      tags: ['React', 'Geofencing', 'Live Tracking'],
+      image: '/images/safe-walk.png',
+      github: 'https://github.com/deepznavzz/safewalk',
+      live: 'https://safewalk-y87y.onrender.com/'
+    },
+    {
+      title: 'Voting Helps',
+      description: 'Online Voting System. A secure, transparent, and user-friendly platform for digital elections.',
+      tags: ['Flask', 'Supabase', 'Security'],
+      image: '/images/voting-system.png',
+      github: 'https://github.com/projectsnavadeep/Voting-System',
+      live: 'https://secure-voting-system-533a.onrender.com/'
+    },
+    {
       title: 'Report Generator',
       description: 'Turn data into polished PDF reports in seconds. A powerful tool for generating professional reports from structured data.',
       tags: ['React', 'Node.js', 'PDF'],

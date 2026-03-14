@@ -484,6 +484,14 @@ function App() {
               {item.label}
             </button>
           ))}
+          <a 
+            href="/resume.pdf" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="font-mono text-xs tracking-[0.18em] text-[#A7AFBA] hover:text-[#C8A45C] transition-colors duration-300"
+          >
+            RESUME
+          </a>
         </div>
       </nav>
 
@@ -519,12 +527,24 @@ function App() {
               <Sparkles size={16} />
               Explore Work
             </button>
-            <button 
-              onClick={() => scrollToSection(contactRef)}
-              className="btn-secondary"
+            <a 
+              href="/resume.pdf" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-secondary flex items-center gap-2"
             >
-              Start a Project
-            </button>
+              <FileText size={16} />
+              View Resume
+            </a>
+            <a 
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=projects.navadeep@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Mail size={16} />
+              Email Me
+            </a>
           </div>
           
           {/* Right Card */}
@@ -649,14 +669,25 @@ function App() {
                 </p>
               </div>
               
-              <div className="mt-8 p-4 bg-[rgba(200,164,92,0.08)] rounded-lg border border-[rgba(200,164,92,0.2)]">
-                <div className="flex items-center gap-3">
-                  <Code2 size={20} className="text-[#C8A45C]" />
-                  <div>
-                    <p className="text-sm text-[#F2F4F8]">B.Tech 3rd Year</p>
-                    <p className="text-xs text-[#A7AFBA]">KITS (S), Singapuram, Karimnagar</p>
+              <div className="flex flex-wrap gap-4 mt-8">
+                <div className="flex-1 min-w-[200px] p-4 bg-[rgba(200,164,92,0.08)] rounded-lg border border-[rgba(200,164,92,0.2)]">
+                  <div className="flex items-center gap-3">
+                    <Code2 size={20} className="text-[#C8A45C]" />
+                    <div>
+                      <p className="text-sm text-[#F2F4F8]">B.Tech 3rd Year</p>
+                      <p className="text-xs text-[#A7AFBA]">KITS (S), Singapuram, Karimnagar</p>
+                    </div>
                   </div>
                 </div>
+                <a 
+                  href="/resume.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-[rgba(200,164,92,0.15)] hover:bg-[rgba(200,164,92,0.25)] transition-colors rounded-lg border border-[#C8A45C]"
+                >
+                  <FileText size={20} className="text-[#C8A45C]" />
+                  <span className="text-sm font-bold text-[#F2F4F8]">Download Resume</span>
+                </a>
               </div>
               
               <a 

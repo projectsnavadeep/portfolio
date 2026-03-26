@@ -444,7 +444,7 @@ function App() {
       tags: ['Firebase', 'React', 'UX'],
       image: '/images/time-capsule.jpg',
       github: 'https://github.com/deepznavzz/timecapsule',
-      live: null
+      live: 'https://digital-time-capsule-ztsp.onrender.com'
     },
     {
       title: 'Resume Builder',

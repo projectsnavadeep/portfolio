@@ -840,7 +840,7 @@ function App() {
                 <img
                   src="/images/about-potrait.png"
                   alt="About portrait"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 ease-out"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out"
                 />
               </div>
 

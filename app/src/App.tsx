@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 import { 
   Github, 
   Linkedin, 
@@ -14,17 +15,114 @@ import {
   Code2,
   Sparkles,
   Zap,
-  Globe
+  Globe,
+  Menu,
+  X,
+  ArrowUp,
+  Layers
 } from 'lucide-react';
 import './App.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// 3D Tilt Card Component for Projects
+const ProjectCard = ({ project, index }: { project: any, index: number }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [style, setStyle] = useState({});
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Max rotation of 4 degrees
+    const rotateX = ((y - centerY) / centerY) * -4; 
+    const rotateY = ((x - centerX) / centerX) * 4;  
+
+    setStyle({
+      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`,
+      transition: 'transform 0.1s ease-out'
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setStyle({
+      transform: `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`,
+      transition: 'transform 0.5s ease-out'
+    });
+  };
+
+  return (
+    <div 
+      ref={cardRef}
+      className="project-card group card-glass rounded-xl overflow-hidden"
+      style={style}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="flex flex-col lg:flex-row h-full">
+        <div className="lg:w-2/5 image-gold-tint overflow-hidden">
+          <img 
+            src={project.image} 
+            alt={project.title}
+            className="w-full h-48 lg:h-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110"
+          />
+        </div>
+        <div className="lg:w-3/5 p-6 lg:p-8 flex flex-col justify-between">
+          <div>
+            <h3 className="text-xl font-bold text-[#F2F4F8] mb-2">{project.title}</h3>
+            <p className="text-[#A7AFBA] text-sm leading-relaxed mb-4">{project.description}</p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {project.tags.map((tag: string, i: number) => (
+                <span key={i} className="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-4 relative z-10">
+            <a 
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-[#A7AFBA] hover:text-[#C8A45C] transition-colors"
+            >
+              <Github size={16} />
+              GitHub
+            </a>
+            {project.live && (
+              <a 
+                href={project.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-[#A7AFBA] hover:text-[#C8A45C] transition-colors"
+              >
+                <ExternalLink size={16} />
+                Live Site
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const [copied, setCopied] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const scrollToSectionMobile = (ref: React.RefObject<HTMLDivElement | null>) => {
+    setMobileMenuOpen(false);
+    setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth' }), 300);
+  };
   const heroRef = useRef<HTMLDivElement>(null);
   const workRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
+  const techStackRef = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
   const metricsRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
@@ -41,6 +139,51 @@ function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Lenis smooth scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 0.8,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove(lenis.raf as any);
+    };
+  }, []);
+
+  // Preloader logic
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'; // Lock scroll during loading
+    
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.preloader-text',
+        { opacity: 0, scale: 0.95, filter: 'blur(12px)' },
+        { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.5, ease: 'power3.out', delay: 0.2 }
+      );
+    });
+    
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+      document.body.style.overflow = ''; // Unlock scroll
+    }, 1800);
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = '';
+      ctx.revert();
+    };
+  }, []);
+
   // Glitter effect
   useEffect(() => {
     if (!glitterRef.current) return;
@@ -48,23 +191,24 @@ function App() {
     const container = glitterRef.current;
     const particles: HTMLDivElement[] = [];
     
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
       const particle = document.createElement('div');
       particle.className = 'glitter-particle';
       particle.style.left = `${Math.random() * 100}%`;
       particle.style.top = `${Math.random() * 100}%`;
-      particle.style.opacity = `${Math.random() * 0.5 + 0.2}`;
-      particle.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+      particle.style.opacity = `${Math.random() * 0.4 + 0.15}`;
+      particle.style.transform = `scale(${Math.random() * 0.6 + 0.4})`;
       container.appendChild(particle);
       particles.push(particle);
       
       gsap.to(particle, {
-        y: `-=${Math.random() * 100 + 50}`,
+        y: `-=${Math.random() * 120 + 60}`,
+        x: `+=${(Math.random() - 0.5) * 40}`,
         opacity: 0,
-        duration: Math.random() * 3 + 2,
+        duration: Math.random() * 4 + 3,
         repeat: -1,
-        ease: 'none',
-        delay: Math.random() * 3
+        ease: 'sine.inOut',
+        delay: Math.random() * 4
       });
     }
     
@@ -75,43 +219,45 @@ function App() {
 
   // Hero animations
   useEffect(() => {
+    if (!isLoaded) return; // Wait until preloader finishes
+
     const ctx = gsap.context(() => {
-      // Hero entrance animation
-      const heroTl = gsap.timeline({ delay: 0.3 });
+      // Hero entrance animation – cinematic & smooth
+      const heroTl = gsap.timeline({ delay: 0.1 }); // Reduced delay since preloader slide takes time
       
       heroTl.fromTo('.hero-bg', 
-        { scale: 1.08, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.2, ease: 'power2.out' }
+        { scale: 1.12, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.6, ease: 'power2.out' }
       );
       
       heroTl.fromTo('.hero-headline span',
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.08, ease: 'power3.out' },
-        '-=0.6'
+        { y: 60, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.1, stagger: 0.12, ease: 'power3.out' },
+        '-=0.8'
       );
       
       heroTl.fromTo('.hero-card',
-        { x: 100, opacity: 0, rotate: 2 },
-        { x: 0, opacity: 1, rotate: 0, duration: 0.9, ease: 'power3.out' },
-        '-=0.5'
+        { x: 120, opacity: 0, rotate: 3 },
+        { x: 0, opacity: 1, rotate: 0, duration: 1.2, ease: 'power3.out' },
+        '-=0.7'
       );
       
       heroTl.fromTo('.hero-cta',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' },
-        '-=0.3'
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.9, ease: 'power2.out' },
+        '-=0.5'
       );
       
       heroTl.fromTo('.hero-microcopy',
         { opacity: 0 },
-        { opacity: 1, duration: 0.5 },
-        '-=0.2'
+        { opacity: 1, duration: 0.7, ease: 'power1.out' },
+        '-=0.3'
       );
       
       heroTl.fromTo('.scroll-cue',
-        { opacity: 0 },
-        { opacity: 1, duration: 0.4 },
-        '-=0.1'
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power1.out' },
+        '-=0.2'
       );
 
       // Hero scroll animation
@@ -120,7 +266,7 @@ function App() {
         start: 'top top',
         end: '+=130%',
         pin: true,
-        scrub: 0.6,
+        scrub: 0.8,
         onUpdate: (self) => {
           const progress = self.progress;
           if (progress > 0.7) {
@@ -160,29 +306,29 @@ function App() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo('.work-title',
-        { x: -80, opacity: 0 },
+        { y: 50, opacity: 0 },
         {
-          x: 0, opacity: 1, duration: 0.8,
+          y: 0, opacity: 1, duration: 1,
           scrollTrigger: {
             trigger: workRef.current,
-            start: 'top 80%',
-            end: 'top 50%',
-            scrub: 0.4
+            start: 'top 85%',
+            end: 'top 45%',
+            scrub: 0.7
           }
         }
       );
 
       gsap.utils.toArray<HTMLElement>('.project-card').forEach((card, i) => {
         gsap.fromTo(card,
-          { x: 100, opacity: 0, rotate: 1 },
+          { y: 80, opacity: 0, scale: 0.97 },
           {
-            x: 0, opacity: 1, rotate: 0, duration: 0.8,
-            delay: i * 0.12,
+            y: 0, opacity: 1, scale: 1, duration: 1,
+            delay: i * 0.08,
             scrollTrigger: {
               trigger: card,
-              start: 'top 85%',
-              end: 'top 60%',
-              scrub: 0.4
+              start: 'top 90%',
+              end: 'top 55%',
+              scrub: 0.7
             }
           }
         );
@@ -196,27 +342,27 @@ function App() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo('.about-image',
-        { x: -100, opacity: 0, scale: 0.98 },
+        { x: -60, opacity: 0, scale: 0.95 },
         {
-          x: 0, opacity: 1, scale: 1, duration: 1,
+          x: 0, opacity: 1, scale: 1, duration: 1.2,
           scrollTrigger: {
             trigger: aboutRef.current,
-            start: 'top 75%',
-            end: 'top 40%',
-            scrub: 0.4
+            start: 'top 85%',
+            end: 'top 35%',
+            scrub: 0.8
           }
         }
       );
 
       gsap.fromTo('.about-content',
-        { x: 100, opacity: 0 },
+        { x: 60, opacity: 0 },
         {
-          x: 0, opacity: 1, duration: 1,
+          x: 0, opacity: 1, duration: 1.2,
           scrollTrigger: {
             trigger: aboutRef.current,
-            start: 'top 70%',
-            end: 'top 35%',
-            scrub: 0.4
+            start: 'top 80%',
+            end: 'top 30%',
+            scrub: 0.8
           }
         }
       );
@@ -224,11 +370,12 @@ function App() {
       gsap.fromTo('.quote-mark-anim',
         { y: -20, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.6,
+          y: 0, opacity: 1, duration: 0.8,
           scrollTrigger: {
             trigger: aboutRef.current,
             start: 'top 60%',
-            toggleActions: 'play none none reverse'
+            end: 'top 40%',
+            scrub: 0.6
           }
         }
       );
@@ -237,33 +384,69 @@ function App() {
     return () => ctx.revert();
   }, []);
 
+  // Tech Stack section animations
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.tech-stack-heading',
+        { y: 50, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 1,
+          scrollTrigger: {
+            trigger: techStackRef.current,
+            start: 'top 85%',
+            end: 'top 45%',
+            scrub: 0.7
+          }
+        }
+      );
+
+      gsap.utils.toArray<HTMLElement>('.tech-stack-group').forEach((group, i) => {
+        gsap.fromTo(group,
+          { y: 60, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 1,
+            delay: i * 0.1,
+            scrollTrigger: {
+              trigger: group,
+              start: 'top 90%',
+              end: 'top 60%',
+              scrub: 0.7
+            }
+          }
+        );
+      });
+    }, techStackRef);
+
+    return () => ctx.revert();
+  }, []);
+
   // Process section animations
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo('.process-heading',
-        { y: -50, opacity: 0 },
+        { y: 50, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.8,
+          y: 0, opacity: 1, duration: 1,
           scrollTrigger: {
             trigger: processRef.current,
-            start: 'top 80%',
-            end: 'top 50%',
-            scrub: 0.4
+            start: 'top 85%',
+            end: 'top 45%',
+            scrub: 0.7
           }
         }
       );
 
       gsap.utils.toArray<HTMLElement>('.process-card-anim').forEach((card, i) => {
         gsap.fromTo(card,
-          { y: 80, opacity: 0, rotate: -1 },
+          { y: 60, opacity: 0, scale: 0.96 },
           {
-            y: 0, opacity: 1, rotate: 0, duration: 0.8,
-            delay: i * 0.12,
+            y: 0, opacity: 1, scale: 1, duration: 1,
+            delay: i * 0.08,
             scrollTrigger: {
               trigger: card,
-              start: 'top 90%',
-              end: 'top 65%',
-              scrub: 0.4
+              start: 'top 92%',
+              end: 'top 60%',
+              scrub: 0.7
             }
           }
         );
@@ -277,29 +460,29 @@ function App() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo('.metric-left',
-        { x: -80, opacity: 0 },
+        { x: -50, opacity: 0 },
         {
-          x: 0, opacity: 1, duration: 0.8,
+          x: 0, opacity: 1, duration: 1,
           scrollTrigger: {
             trigger: metricsRef.current,
-            start: 'top 75%',
-            end: 'top 45%',
-            scrub: 0.4
+            start: 'top 85%',
+            end: 'top 40%',
+            scrub: 0.8
           }
         }
       );
 
       gsap.utils.toArray<HTMLElement>('.metric-right-item').forEach((item, i) => {
         gsap.fromTo(item,
-          { x: 80, opacity: 0 },
+          { x: 50, opacity: 0 },
           {
-            x: 0, opacity: 1, duration: 0.6,
-            delay: i * 0.1,
+            x: 0, opacity: 1, duration: 1,
+            delay: i * 0.08,
             scrollTrigger: {
               trigger: item,
-              start: 'top 85%',
-              end: 'top 60%',
-              scrub: 0.4
+              start: 'top 88%',
+              end: 'top 55%',
+              scrub: 0.8
             }
           }
         );
@@ -308,12 +491,12 @@ function App() {
       gsap.fromTo('.divider-anim',
         { scaleY: 0 },
         {
-          scaleY: 1, duration: 1,
+          scaleY: 1, duration: 1.2,
           scrollTrigger: {
             trigger: metricsRef.current,
-            start: 'top 70%',
-            end: 'top 30%',
-            scrub: 0.4
+            start: 'top 80%',
+            end: 'top 25%',
+            scrub: 0.9
           }
         }
       );
@@ -326,27 +509,27 @@ function App() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo('.testimonial-quote',
-        { x: -100, opacity: 0 },
+        { x: -60, opacity: 0 },
         {
-          x: 0, opacity: 1, duration: 1,
+          x: 0, opacity: 1, duration: 1.2,
           scrollTrigger: {
             trigger: testimonialsRef.current,
-            start: 'top 75%',
-            end: 'top 40%',
-            scrub: 0.4
+            start: 'top 85%',
+            end: 'top 35%',
+            scrub: 0.8
           }
         }
       );
 
       gsap.fromTo('.testimonial-image',
-        { x: 100, opacity: 0, scale: 1.02 },
+        { x: 60, opacity: 0, scale: 0.97 },
         {
-          x: 0, opacity: 1, scale: 1, duration: 1,
+          x: 0, opacity: 1, scale: 1, duration: 1.2,
           scrollTrigger: {
             trigger: testimonialsRef.current,
-            start: 'top 70%',
-            end: 'top 35%',
-            scrub: 0.4
+            start: 'top 80%',
+            end: 'top 30%',
+            scrub: 0.8
           }
         }
       );
@@ -354,11 +537,12 @@ function App() {
       gsap.fromTo('.attribution-bar',
         { scaleX: 0 },
         {
-          scaleX: 1, duration: 0.8,
+          scaleX: 1, duration: 1,
           scrollTrigger: {
             trigger: testimonialsRef.current,
             start: 'top 55%',
-            toggleActions: 'play none none reverse'
+            end: 'top 35%',
+            scrub: 0.6
           }
         }
       );
@@ -371,40 +555,40 @@ function App() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo('.contact-left',
-        { y: 60, opacity: 0 },
+        { y: 50, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.8,
+          y: 0, opacity: 1, duration: 1,
           scrollTrigger: {
             trigger: contactRef.current,
-            start: 'top 80%',
-            end: 'top 50%',
-            scrub: 0.4
+            start: 'top 85%',
+            end: 'top 45%',
+            scrub: 0.7
           }
         }
       );
 
       gsap.fromTo('.contact-right',
-        { y: 60, opacity: 0 },
+        { y: 50, opacity: 0 },
         {
-          y: 0, opacity: 1, duration: 0.8,
-          delay: 0.2,
+          y: 0, opacity: 1, duration: 1,
           scrollTrigger: {
             trigger: contactRef.current,
-            start: 'top 75%',
-            end: 'top 45%',
-            scrub: 0.4
+            start: 'top 80%',
+            end: 'top 40%',
+            scrub: 0.7
           }
         }
       );
 
       gsap.fromTo('.footer-bottom',
-        { opacity: 0 },
+        { opacity: 0, y: 20 },
         {
-          opacity: 1, duration: 0.6,
+          opacity: 1, y: 0, duration: 0.8,
           scrollTrigger: {
             trigger: '.footer-bottom',
             start: 'top 95%',
-            toggleActions: 'play none none reverse'
+            end: 'top 80%',
+            scrub: 0.6
           }
         }
       );
@@ -457,8 +641,23 @@ function App() {
   ];
 
   return (
-    <div className="relative">
-      {/* Grain overlay */}
+    <>
+      {/* Figma-style Minimal Preloader */}
+      <div 
+        className={`fixed inset-0 z-[9999] bg-[#0B0C0F] flex flex-col items-center justify-center transition-transform duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isLoaded ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <h1 className="preloader-text font-serif text-[clamp(24px,4vw,40px)] tracking-[0.2em] font-light text-[#F2F4F8] uppercase">
+            Navadeep Sripathi
+          </h1>
+        </div>
+      </div>
+
+      {/* Main Content wrapper */}
+      <div className={`relative transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        {/* Grain overlay */}
       <div className="grain-overlay" />
       
       {/* Glitter particles */}
@@ -493,7 +692,45 @@ function App() {
             RESUME
           </a>
         </div>
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden text-[#F2F4F8] hover:text-[#C8A45C] transition-colors z-[60]"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div className={`fixed inset-0 z-[55] bg-[#0B0C0F]/98 backdrop-blur-md flex flex-col items-center justify-center gap-8 transition-all duration-500 md:hidden ${
+        mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}>
+        {[
+          { label: 'Work', ref: workRef },
+          { label: 'About', ref: aboutRef },
+          { label: 'Process', ref: processRef },
+          { label: 'Contact', ref: contactRef }
+        ].map((item, i) => (
+          <button
+            key={item.label}
+            onClick={() => scrollToSectionMobile(item.ref)}
+            className="font-mono text-lg tracking-[0.18em] text-[#A7AFBA] hover:text-[#C8A45C] transition-all duration-300"
+            style={{ transitionDelay: mobileMenuOpen ? `${i * 80}ms` : '0ms', transform: mobileMenuOpen ? 'translateY(0)' : 'translateY(20px)', opacity: mobileMenuOpen ? 1 : 0 }}
+          >
+            {item.label}
+          </button>
+        ))}
+        <a 
+          href="/resume.pdf" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="font-mono text-lg tracking-[0.18em] text-[#C8A45C] hover:text-[#D4B76A] transition-all duration-300"
+          style={{ transitionDelay: mobileMenuOpen ? '320ms' : '0ms', transform: mobileMenuOpen ? 'translateY(0)' : 'translateY(20px)', opacity: mobileMenuOpen ? 1 : 0 }}
+        >
+          RESUME
+        </a>
+      </div>
 
       {/* Section 1: Hero */}
       <section ref={heroRef} className="relative w-full h-screen overflow-hidden z-10">
@@ -516,6 +753,9 @@ function App() {
               <span className="block">Creative</span>
               <span className="block text-gradient">Developer</span>
             </h1>
+            <p className="text-[#A7AFBA] text-sm md:text-base mt-4 max-w-md leading-relaxed font-light">
+              Full-stack engineer crafting clean, fast, memorable products.
+            </p>
           </div>
           
           {/* CTA Row */}
@@ -588,50 +828,7 @@ function App() {
           
           <div className="space-y-8">
             {projects.map((project, index) => (
-              <div key={index} className="project-card card-glass rounded-xl overflow-hidden">
-                <div className="flex flex-col lg:flex-row">
-                  <div className="lg:w-2/5 image-gold-tint">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-48 lg:h-full object-cover"
-                    />
-                  </div>
-                  <div className="lg:w-3/5 p-6 lg:p-8 flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-xl font-bold text-[#F2F4F8] mb-2">{project.title}</h3>
-                      <p className="text-[#A7AFBA] text-sm leading-relaxed mb-4">{project.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.tags.map((tag, i) => (
-                          <span key={i} className="tag">{tag}</span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <a 
-                        href={project.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-[#A7AFBA] hover:text-[#C8A45C] transition-colors"
-                      >
-                        <Github size={16} />
-                        GitHub
-                      </a>
-                      {project.live && (
-                        <a 
-                          href={project.live}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-[#A7AFBA] hover:text-[#C8A45C] transition-colors"
-                        >
-                          <ExternalLink size={16} />
-                          Live Site
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProjectCard key={index} project={project} index={index} />
             ))}
           </div>
         </div>
@@ -641,11 +838,11 @@ function App() {
       <section ref={aboutRef} className="relative w-full min-h-screen py-24 z-30 bg-[#0B0C0F]">
         <div className="px-[6vw]">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="about-image image-gold-tint rounded-xl overflow-hidden h-[50vh] lg:h-[70vh]">
+            <div className="about-image image-gold-tint rounded-2xl overflow-hidden aspect-square sm:aspect-[4/5] md:aspect-[3/4] lg:aspect-[2/3] w-full shadow-lg shadow-black/30">
               <img 
-                src="/images/about-portrait.jpg" 
+                src="/images/about-potrait.png" 
                 alt="About portrait"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top transition-transform duration-700 ease-out"
               />
             </div>
             
@@ -704,7 +901,55 @@ function App() {
         </div>
       </section>
 
-      {/* Section 4: Process */}
+      {/* Section 3.5: Tech Stack */}
+      <section ref={techStackRef} className="relative w-full py-24 z-[35] bg-[#0B0C0F]">
+        <div className="px-[6vw]">
+          <div className="tech-stack-heading mb-16">
+            <span className="font-mono text-xs tracking-[0.18em] text-[#C8A45C] uppercase">Tech Stack</span>
+            <h2 className="text-[clamp(28px,3.6vw,48px)] font-bold uppercase tracking-[0.06em] text-[#F2F4F8] mt-4">
+              Tools I work with.
+            </h2>
+          </div>
+          
+          <div className="space-y-10">
+            {[
+              {
+                category: 'Frontend',
+                skills: ['React', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Next.js', 'HTML/CSS']
+              },
+              {
+                category: 'Backend',
+                skills: ['Node.js', 'Flask', 'Express', 'Supabase', 'Firebase', 'REST APIs']
+              },
+              {
+                category: 'Tools & Platforms',
+                skills: ['Git', 'Figma', 'Vite', 'Vercel', 'Render', 'Docker', 'GitHub Actions']
+              },
+              {
+                category: 'Currently Learning',
+                skills: ['Rust', 'Three.js', 'WebGL', 'PostgreSQL']
+              }
+            ].map((group, groupIndex) => (
+              <div key={groupIndex} className="tech-stack-group">
+                <h3 className="font-mono text-xs tracking-[0.18em] text-[#A7AFBA] uppercase mb-4 flex items-center gap-2">
+                  <Layers size={14} className="text-[#C8A45C]" />
+                  {group.category}
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {group.skills.map((skill, i) => (
+                    <span
+                      key={i}
+                      className="skill-chip px-4 py-2 text-sm font-mono text-[#F2F4F8] rounded-full border border-[rgba(242,244,248,0.12)] bg-[rgba(20,23,28,0.6)] hover:border-[#C8A45C] hover:text-[#C8A45C] hover:bg-[rgba(200,164,92,0.08)] transition-all duration-300 cursor-default"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       <section ref={processRef} className="relative w-full min-h-screen py-24 z-40 bg-[#0B0C0F]">
         <div className="px-[6vw]">
           <div className="process-heading mb-16">
@@ -893,17 +1138,41 @@ function App() {
             </div>
           </div>
           
-          <div className="footer-bottom mt-24 pt-8 border-t border-[rgba(242,244,248,0.1)] flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-[#A7AFBA]">
-              © Navadeep Sripathi. Built with care.
-            </p>
-            <p className="text-xs text-[#A7AFBA] font-mono">
-              B.Tech 3rd Year • KITS (S)
-            </p>
+          <div className="footer-bottom mt-24 pt-8 border-t border-[rgba(242,244,248,0.1)] flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-6 order-2 md:order-1">
+              <p className="text-xs text-[#A7AFBA]">
+                © Navadeep Sripathi. Built with care.
+              </p>
+              <div className="hidden md:flex items-center gap-4 text-[#A7AFBA]">
+                <a href="https://github.com/projectsnavadeep" target="_blank" rel="noopener noreferrer" className="hover:text-[#C8A45C] transition-colors" aria-label="GitHub">
+                  <Github size={16} />
+                </a>
+                <a href="https://www.linkedin.com/in/navadeep-sripathi-924b48351/" target="_blank" rel="noopener noreferrer" className="hover:text-[#C8A45C] transition-colors" aria-label="LinkedIn">
+                  <Linkedin size={16} />
+                </a>
+                <a href="mailto:projects.navadeep@gmail.com" className="hover:text-[#C8A45C] transition-colors" aria-label="Email">
+                  <Mail size={16} />
+                </a>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6 order-1 md:order-2">
+              <p className="text-xs text-[#A7AFBA] font-mono">
+                B.Tech 3rd Year • KITS (S)
+              </p>
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="w-10 h-10 rounded-full border border-[rgba(242,244,248,0.1)] flex items-center justify-center text-[#A7AFBA] hover:text-[#C8A45C] hover:border-[#C8A45C] transition-all duration-300 hover:-translate-y-1 bg-[rgba(20,23,28,0.5)]"
+                aria-label="Back to top"
+              >
+                <ArrowUp size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
     </div>
+    </>
   );
 }
 

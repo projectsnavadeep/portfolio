@@ -10,7 +10,6 @@ import {
   ChevronDown,
   Copy,
   Check,
-  MapPin,
   FileText,
   Code2,
   Sparkles,

@@ -21,9 +21,11 @@ import {
   ArrowUp,
   Layers
 } from 'lucide-react';
+import ContactForm from './components/ContactForm';
 import './App.css';
 
 gsap.registerPlugin(ScrollTrigger);
+
 
 // 3D Tilt Card Component for Projects
 const ProjectCard = ({ project }: { project: any }) => {
@@ -1090,49 +1092,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="contact-right space-y-6">
-                <div className="flex items-start gap-4">
-                  <Mail size={20} className="text-[#C8A45C] mt-1" />
-                  <div>
-                    <p className="text-sm text-[#A7AFBA]">Email</p>
-                    <p className="text-[#F2F4F8]">projects.navadeep@gmail.com</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <MapPin size={20} className="text-[#C8A45C] mt-1" />
-                  <div>
-                    <p className="text-sm text-[#A7AFBA]">Location</p>
-                    <p className="text-[#F2F4F8]">India (worldwide remote)</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <FileText size={20} className="text-[#C8A45C] mt-1" />
-                  <div>
-                    <p className="text-sm text-[#A7AFBA]">Links</p>
-                    <div className="flex gap-4 mt-2">
-                      <a
-                        href="https://github.com/projectsnavadeep"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[#F2F4F8] hover:text-[#C8A45C] transition-colors"
-                      >
-                        <Github size={16} />
-                        <span className="text-sm">GitHub</span>
-                      </a>
-                      <a
-                        href="https://www.linkedin.com/in/navadeep-sripathi-924b48351/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[#F2F4F8] hover:text-[#C8A45C] transition-colors"
-                      >
-                        <Linkedin size={16} />
-                        <span className="text-sm">LinkedIn</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              <div className="contact-right">
+                <ContactForm />
               </div>
             </div>
 

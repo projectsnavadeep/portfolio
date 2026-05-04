@@ -600,12 +600,20 @@ function App() {
 
   const projects = [
     {
-      title: 'Safe Walk',
-      description: 'Women Safe Live Tracker. Real-time location tracking and emergency alerts for personal safety.',
-      tags: ['React', 'Geofencing', 'Live Tracking'],
-      image: '/images/safe-walk.png',
-      github: 'https://github.com/deepznavzz/safewalk',
-      live: 'https://safewalk-y87y.onrender.com/'
+      title: 'ANTI CODE SOFTWARE SOLUTIONS PVT LIMITED',
+      description: 'A cutting-edge software startup delivering innovative digital solutions and strategic technical consulting.',
+      tags: ['React', 'Next.js', 'Enterprise Solutions'],
+      image: '/images/startup.png',
+      github: 'https://github.com/projectsnavadeep',
+      live: 'https://codenexa-ucfp.onrender.com/'
+    },
+    {
+      title: 'SVV COMPUTERS',
+      description: 'A comprehensive computer service and maintenance platform providing professional technical support.',
+      tags: ['React', 'Service Management', 'Web Design'],
+      image: '/images/client-1.png',
+      github: 'https://github.com/projectsnavadeep',
+      live: 'https://svvcomputers.onrender.com/'
     },
     {
       title: 'Voting Helps',
@@ -614,6 +622,14 @@ function App() {
       image: '/images/voting-system.png',
       github: 'https://github.com/projectsnavadeep/Voting-System',
       live: 'https://secure-voting-system-533a.onrender.com/'
+    },
+    {
+      title: 'Safe Walk',
+      description: 'Women Safe Live Tracker. Real-time location tracking and emergency alerts for personal safety.',
+      tags: ['React', 'Geofencing', 'Live Tracking'],
+      image: '/images/safe-walk.png',
+      github: 'https://github.com/deepznavzz/safewalk',
+      live: 'https://safewalk-y87y.onrender.com/'
     },
     {
       title: 'Report Generator',

@@ -125,7 +125,6 @@ function App() {
   const aboutRef = useRef<HTMLDivElement>(null);
   const techStackRef = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
-  const metricsRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
   const glitterRef = useRef<HTMLDivElement>(null);
@@ -457,54 +456,7 @@ function App() {
     return () => ctx.revert();
   }, []);
 
-  // Metrics section animations
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.metric-left',
-        { x: -50, opacity: 0 },
-        {
-          x: 0, opacity: 1, duration: 1,
-          scrollTrigger: {
-            trigger: metricsRef.current,
-            start: 'top 85%',
-            end: 'top 40%',
-            scrub: 0.8
-          }
-        }
-      );
 
-      gsap.utils.toArray<HTMLElement>('.metric-right-item').forEach((item, i) => {
-        gsap.fromTo(item,
-          { x: 50, opacity: 0 },
-          {
-            x: 0, opacity: 1, duration: 1,
-            delay: i * 0.08,
-            scrollTrigger: {
-              trigger: item,
-              start: 'top 88%',
-              end: 'top 55%',
-              scrub: 0.8
-            }
-          }
-        );
-      });
-
-      gsap.fromTo('.divider-anim',
-        { scaleY: 0 },
-        {
-          scaleY: 1, duration: 1.2,
-          scrollTrigger: {
-            trigger: metricsRef.current,
-            start: 'top 80%',
-            end: 'top 25%',
-            scrub: 0.9
-          }
-        }
-      );
-    }, metricsRef);
-
-    return () => ctx.revert();
-  }, []);
 
   // Testimonials section animations
   useEffect(() => {
@@ -599,6 +551,14 @@ function App() {
   }, []);
 
   const projects = [
+    {
+      title: 'InternTrack',
+      description: 'A powerful web application to help track, update, and create applications for students, and assign dates, calendars, and events.',
+      tags: ['React', 'Web App', 'Scheduling'],
+      image: '/images/interntrack.png',
+      github: 'https://github.com/projectsnavadeep/Interntrack',
+      live: 'https://internship-0sf2.onrender.com'
+    },
     {
       title: 'ANTI CODE SOFTWARE SOLUTIONS PVT LIMITED',
       description: 'A cutting-edge software startup delivering innovative digital solutions and strategic technical consulting.',
@@ -1008,39 +968,7 @@ function App() {
           </div>
         </section>
 
-        {/* Section 5: Metrics */}
-        <section ref={metricsRef} className="relative w-full min-h-screen py-24 z-50 bg-[#0B0C0F]">
-          <div className="px-[6vw]">
-            <div className="mb-16">
-              <span className="font-mono text-xs tracking-[0.18em] text-[#C8A45C] uppercase">Impact</span>
-              <h2 className="text-[clamp(28px,3.6vw,48px)] font-bold uppercase tracking-[0.06em] text-[#F2F4F8] mt-4">
-                Numbers that matter.
-              </h2>
-            </div>
 
-            <div className="flex flex-col lg:flex-row gap-12 lg:gap-0">
-              <div className="lg:w-1/2 metric-left">
-                <div className="metric-number">12+</div>
-                <p className="text-[#A7AFBA] mt-2">Projects shipped</p>
-              </div>
-
-              <div className="hidden lg:block divider-anim divider-line origin-top mx-8" />
-
-              <div className="lg:w-1/2 space-y-8">
-                {[
-                  { value: '99.9%', label: 'Uptime target' },
-                  { value: '<1.2s', label: 'Core Web Vitals (LCP)' },
-                  { value: '100%', label: 'Client communication' }
-                ].map((metric, index) => (
-                  <div key={index} className="metric-right-item">
-                    <div className="metric-number text-3xl md:text-4xl">{metric.value}</div>
-                    <p className="text-[#A7AFBA] mt-1">{metric.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Section 6: Testimonials */}
         <section ref={testimonialsRef} className="relative w-full min-h-screen py-24 z-[60] bg-[#0B0C0F]">
@@ -1052,7 +980,7 @@ function App() {
                 <div className="quote-mark mt-6">"</div>
 
                 <blockquote className="text-xl md:text-2xl text-[#F2F4F8] leading-relaxed mt-4">
-                  Navadeep brings calm clarity to complex work. Every delivery was on time, every detail considered.
+                  Navadeep brings unmatched clarity to complex work. Every delivery is flawless, every detail masterfully crafted.
                 </blockquote>
 
                 <div className="attribution-bar w-10 h-[3px] bg-[#C8A45C] mt-6 origin-left" />
